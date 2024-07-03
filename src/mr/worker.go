@@ -30,7 +30,7 @@ type KeyValue struct {
 type worker struct {
 	workerType string
 	workerTask []string
-	TaskId     int//
+	TaskId     int //
 	nReduce    int
 }
 
@@ -49,9 +49,9 @@ func Worker(mapf func(string, string) []KeyValue,
 
 	for {
 		reply := AskTask(&m_worker)
-		if(reply.TaskId == -1){
+		if reply.TaskId == -1 {
 			continue
-		}else if(reply.TaskId==	-2){
+		} else if reply.TaskId == -2 {
 			println("the task has done kill the worker")
 			os.Exit(0)
 		}
@@ -67,7 +67,7 @@ func Worker(mapf func(string, string) []KeyValue,
 			sort.Sort(ByKey(kva))
 			filenames := emit(&m_worker, &kva)
 			CompleteTask(&m_worker, filenames)
-		} else if reply.TaskType == "reduce"{
+		} else if reply.TaskType == "reduce" {
 
 			m_worker.workerType = reply.TaskType
 			oname := fmt.Sprintf("mr-out-%v", m_worker.TaskId)
@@ -100,7 +100,7 @@ func Worker(mapf func(string, string) []KeyValue,
 			ofile.Close()
 			filename := []string{oname}
 			CompleteTask(&m_worker, &filename)
-		}else{
+		} else {
 			println("receive unknown task type")
 		}
 	}
@@ -153,6 +153,7 @@ func AskTask(m_worker *worker) CoordinatorReply {
 	if ok {
 		return reply
 	} else {
+		reply.TaskId = -2
 		println("AskTask the master may be done")
 		return reply
 	}
@@ -169,6 +170,7 @@ func CompleteTask(m_worker *worker, filename *[]string) CoordinatorReply {
 	if ok {
 		return reply
 	} else {
+		reply.TaskId = -2
 		println("ReceiveFinishedTask the master may be done")
 		return reply
 	}

@@ -42,24 +42,23 @@ type Coordinator struct {
 //
 
 func (c *Coordinator) ReceiveFinishedTask(args *CoordinatorArgs, reply *CoordinatorReply) error {
-
+defer c.Lock.Unlock()
 	if args.TaskType == "map" {
 		sort.Strings(args.Filename)
-
-		c.Lock.Lock()
-		c.nMapCompleted++
-		c.MapTask[args.TaskId].state = Completed
-		for i, filename := range args.Filename {
-			c.ReduceTask[i].file = append(c.ReduceTask[i].file, filename)
+		c.Lock.Lock()	
+		if(c.MapTask[args.TaskId].state==InProgress){
+			c.nMapCompleted++
+			c.MapTask[args.TaskId].state = Completed
+			for i, filename := range args.Filename {
+				c.ReduceTask[i].file = append(c.ReduceTask[i].file, filename)
+			}
 		}
-
-
-		c.Lock.Unlock()
 	} else if args.TaskType == "reduce" {
 		c.Lock.Lock()
+		if(c.ReduceTask[args.TaskId].state==InProgress){
 		c.nReduceCompleted++
 		c.ReduceTask[args.TaskId].state = Completed
-		c.Lock.Unlock()
+		}
 	} else {
 		println("unknown task type")
 		return errors.New("unknown task type")
