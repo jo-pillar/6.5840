@@ -331,6 +331,10 @@ func TestUnreliable2(t *testing.T) {
 	GenericTest(t, 5, true, false)
 }
 
+func TestUnreliable3(t *testing.T) {
+	GenericTest(t, 5, true, true)
+}
+
 // Test: unreliable net, many clients, one key
 func TestUnreliableOneKey2(t *testing.T) {
 	cfg := make_config(t, true)
